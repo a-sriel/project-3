@@ -11,3 +11,7 @@ The b-tree has at least degree 10 (i.e. 19 key/value pairs and 20 child pointers
 All arguments will be passed via the command line. For this project, I am planning to develop it on Ubuntu using WSL. I will also test it on the cs1 servers using MobaXterm. 
 
 Since this program does not require the use of pipes or threads, I will probably take a functional programming approach with this project. I may separate the program logic based on the program driver, menu driver, and communication logic, but I'm not 100% sure how I will divide it yet. I will probably just start off putting everything in a main driver file.
+
+2025-11-17 19:56
+
+I am planning to start representing the blocks in std::cout, instead of worrying about creating a separate file. I have created the initial driver.cpp file, where I will begin to implement this logic. I won't implement the commands menu yet, I just want to worry about getting the blocks output properly. Later, I will need to add arguments to main() to accept command line arguments.
