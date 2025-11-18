@@ -15,3 +15,5 @@ Since this program does not require the use of pipes or threads, I will probably
 2025-11-17 19:56
 
 I am planning to start representing the blocks in std::cout, instead of worrying about creating a separate file. I have created the initial driver.cpp file, where I will begin to implement this logic. I won't implement the commands menu yet, I just want to worry about getting the blocks output properly. Later, I will need to add arguments to main() to accept command line arguments.
+
+I am having a difficult time visualizing how the index file output is supposed to look, so I am going to come back to this later.
