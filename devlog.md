@@ -17,3 +17,8 @@ Since this program does not require the use of pipes or threads, I will probably
 I am planning to start representing the blocks in std::cout, instead of worrying about creating a separate file. I have created the initial driver.cpp file, where I will begin to implement this logic. I won't implement the commands menu yet, I just want to worry about getting the blocks output properly. Later, I will need to add arguments to main() to accept command line arguments.
 
 I am having a difficult time visualizing how the index file output is supposed to look, so I am going to come back to this later.
+
+2025-12-5 21:44
+I need to change course a little bit. Instead of focusing on the output first, I am going to focus on getting the B-tree logic down. 
+
+This session, I will start by making main take command line arguments. I will also make separate classes for the Node and the BTree itself, making sure they all contain the proper parameters to store the values, keys, and block IDs.
