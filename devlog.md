@@ -21,4 +21,4 @@ I am having a difficult time visualizing how the index file output is supposed t
 2025-12-5 21:44
 I need to change course a little bit. Instead of focusing on the output first, I am going to focus on getting the B-tree logic down. 
 
-This session, I will start by making main take command line arguments. I will also make separate classes for the Node and the BTree itself, making sure they all contain the proper parameters to store the values, keys, and block IDs.
+This session, I will start by making main take command line arguments. I will also make separate classes for the Node and the BTree itself, making sure they all contain the proper parameters to store the values, keys, and block IDs. I have implemented an outline for the Node and BTree classes, and set up the header logic for the index file within the BTree class. I also declared some literals. I am not sure what data type to use for hexadecimal values, so I will need to toy around with that later.
