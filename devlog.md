@@ -33,3 +33,5 @@ I changed the magic number to be a const* char, as it needs to be an 8-bit seque
 2025-12-8 20:55
 
 I need to finalize the B-Tree logic. I will probably store the Node data within std::vectors to keep things consistent. Sometimes I think using Python would make this way easier but... I like writing C++. 
+
+I temporarily moved Node into BTree.h for simplification. I'm not sure if I will keep it this way or not. This will avoid me needing to rely on getters and setters in the testing phase.
