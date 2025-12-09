@@ -29,3 +29,7 @@ This session, I will start by making main take command line arguments. I will al
 This session, I will work on refining the B-Tree. I am going to implement the create() function so that I can make sure I am populating the fields correctly. The header file needs to contain the magic number, and the root id and next block id, so 3 8-bit numbers total. I am planning to use a vector implementation and utilize the bigendian conversion functions provided in the project document to make sure the 8-bit numbers are properly formatted.
 
 I changed the magic number to be a const* char, as it needs to be an 8-bit sequence of ASCII values. The create function was also partially implemented. I created a format_bytes() function to handle the block padding and populate each node with 512 0x00's (initially), as each block consists of 512 bytes.
+
+2025-12-8 20:55
+
+I need to finalize the B-Tree logic. I will probably store the Node data within std::vectors to keep things consistent. Sometimes I think using Python would make this way easier but... I like writing C++. 
