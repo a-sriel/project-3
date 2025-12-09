@@ -5,31 +5,88 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include <stdint.h>
 
-#include "Node.h"
+//#include "Node.h"
 
 const size_t BLOCK_SIZE = 512;
 const char* MAGIC_NUMBER = "4348PRJ3";
 #define MIN_DEGREE 10
 #define MAX_KEYS (2 * MIN_DEGREE - 1)
 
+
 class BTree {
     private:
         std::string filename;
-        Node root;
-        int next_block_id = 1;
+
+        struct Node {
+            private:
+                uint8_t block_id;
+                uint8_t parent_block_id;
+                uint8_t num_keys;
+
+                std::vector<uint8_t> keys;
+                std::vector<uint8_t> values;
+                std::vector<uint8_t> child_block_ids;
+
+                bool is_leaf;
+                Node* next;
+                
+            public:
+                Node() {
+                    block_id = 0;
+                    is_leaf = true;
+                }
+
+                Node(bool _is_leaf = false) {
+                    is_leaf = _is_leaf;
+                    next = nullptr;
+                }
+                std::vector<uint8_t> get_child_block_ids() {
+                    return this->child_block_ids;
+                }
+
+                uint8_t get_key_at(int i) {
+                    return this->keys.at(i);
+                }
+
+                void set_key_at(int i) {
+                    
+                }
+
+                bool get_is_leaf() {
+                    return this->is_leaf;
+                }
+
+                bool get_num_keys() {
+                    return this->num_keys;
+                }
+        };
+        
      
     public:
-        BTree() {
-            filename = "";
-            root = Node(0, true);
+        Node* root;
+
+        size_t degree = MIN_DEGREE;
+
+        void split_child(Node* parent, size_t idx, Node* child);
+
+        void insert_non_full(Node* node, uint8_t key);
+        void borrow_from_prev(Node* node, size_t idx);
+        void borrow_from_next(Node* node, size_t idx);
+
+        void merge(Node* node, size_t idx);
+
+        BTree(size_t _degree) {
+            root = nullptr;
+            degree = _degree;
         }
 
-        BTree(std::string _filename) {
-            filename = _filename;
-        }
+        void insert(uint8_t key);
+        bool search(uint8_t key);
+        std::vector<uint8_t> range_query(uint8_t lower, uint8_t upper);
 
         int is_bigendian() {
             int x = 1;
@@ -79,15 +136,19 @@ class BTree {
 
                 format_bytes(file, seq);
                 
-
                 file.close();
             }
 
-            int root_id = 0;
-
-            // define header
-           // long header = std::stoi(magic_number) + root_id + next_block_id;
         }
+
+        /*
+        void split_child(Node x, int i) {
+            std::vector<uint8_t> y = x.get_child_block_ids();
+            Node z = Node(y->is_leaf);
+        }
+        */
+
 };
+
 
 #endif
