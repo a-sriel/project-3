@@ -3,7 +3,7 @@
 
 #include <vector>
 
-class Node {
+struct Node {
     private:
         int block_id;
         bool is_leaf;
