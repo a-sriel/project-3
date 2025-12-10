@@ -183,10 +183,107 @@ class BTree {
 
         void extract(const std::string& filename) {}
 
-        Node* load_node(uint64_t block_id) {}
+        Node* load_node(uint64_t block_id) {
+            std::ifstream file(file_path_, std::ios::binary);
+            if (!file.is_open()) {
+                std::cerr << "File write failed. Unable to open file." << std::endl;
+                return nullptr;
+            }
+
+            // seek block
+            file.seekg(block_id * BLOCK_SIZE);
+
+            // read block
+            char block[BLOCK_SIZE];
+            file.read(block, BLOCK_SIZE);
+
+            Node* node = new Node();
+            node->block_id = block_id;
+
+            // read fields
+            uint64_t bid_disk, parent_disk, num_keys_disk;
+            std::memcpy(&bid_disk, block, 8);
+            std::memcpy(&parent_disk, block+8, 8);
+            std::memcpy(&num_keys_disk, block+16, 8);
+
+            node->parent_id = to_bigendian(parent_disk);
+            node->num_keys = to_bigendian(num_keys_disk);
+
+            // read keys
+            for (int i = 0; i < MAX_KEYS; ++i) {
+                uint64_t key;
+                std::memcpy(&key, block+24+i*8, sizeof(key));
+                key = to_bigendian(key);
+                node->keys[i] = key;
+            }
+
+            // read values
+            for (int i = 0; i < MAX_KEYS; ++i) {
+                uint64_t value;
+                std::memcpy(&value, block+176+i*8, sizeof(value));
+                value = to_bigendian(value);
+                node->values[i] = value;
+            }
+
+            // read child block IDs
+            for (int i = 0; i < MAX_KEYS+1; ++i) {
+                uint64_t child_block_id;
+                std::memcpy(&child_block_id, block+328+i*8, sizeof(child_block_id));
+                child_block_id = to_bigendian(child_block_id);
+                node->child_block_ids[i] = child_block_id;
+            }
+
+            node->is_leaf = (node->child_block_ids[0] == 0);
+
+            file.close();
+            return node;
+
+        }
 
         // save node to idx file
-        void save_node(Node* node) {}
+        void save_node(Node* node) {
+            std::ofstream file(file_path_, std::ios::binary | std::ios::in | std::ios::out);
+            if (!file.is_open()) {
+                std::cerr << "File write failed. Unable to open file." << std::endl;
+                return;
+            }
+
+            // seek block
+            file.seekp(node->block_id * BLOCK_SIZE);
+
+            // write fields
+            std::vector<uint8_t> buffer;
+
+            uint64_t block_id = to_bigendian(node->block_id);
+            uint64_t parent_block_id = to_bigendian(node->parent_id);
+            uint64_t key_count = to_bigendian(node->num_keys);
+
+            buffer.insert(buffer.end(), (uint8_t*)&block_id, (uint8_t*)&block_id + 8);
+            buffer.insert(buffer.end(), (uint8_t*)&parent_block_id, (uint8_t*)&parent_block_id + 8);
+            buffer.insert(buffer.end(), (uint8_t*)&key_count, (uint8_t*)&key_count + 8);
+
+            // write keys
+            for (int i = 0; i < MAX_KEYS; ++i) {
+                uint64_t key = to_bigendian(node->keys[i]);
+                buffer.insert(buffer.end(), (uint8_t*)&key, (uint8_t*)&key + 8);
+            }
+
+            // write values
+            for (int i = 0; i < MAX_KEYS; ++i) {
+                uint64_t value = to_bigendian(node->values[i]);
+                buffer.insert(buffer.end(), (uint8_t*)&value, (uint8_t*)&value + 8);
+            }
+
+            // write child block IDs
+            for (int i = 0; i < MAX_KEYS + 1; ++i) {
+                uint64_t child_block_id = to_bigendian(node->child_block_ids[i]);
+                buffer.insert(buffer.end(), (uint8_t*)&child_block_id, (uint8_t*)&child_block_id+8);
+            }
+
+            format_bytes(file, buffer);
+
+            file.close();
+        }
 
         void insert_non_full(Node* x, uint64_t key, uint64_t value) {
             int i = x->num_keys - 1;

@@ -59,3 +59,5 @@ Since dumping everything into a single file, and partially starting over the B-T
 I need to finalize the insertion method. I will also incorporate the menu in the program driver to support this insertion. The insertion function creates a header if the root doesn't exist and saves it to the file. Otherwise, it checks for duplicate keys and alters the subroots and splits children until the B-Tree order is maintained.
 
 I finished the insertion logic, and also incorporated the fixed split_child function. I am continuing to update the menu. All of the input error handling has been finished. The menu is also done.
+
+Save node and load node functionality has been added. This was a relatively simple addition since they are basically the same function with a few tweaks. The buffers are properly formatted to support the 8-bit wide number format in the hex file. To finalize this project, I need to finish the print and extract functions, and then do another quick pass of everything before I submit.
