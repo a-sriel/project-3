@@ -35,3 +35,7 @@ I changed the magic number to be a const* char, as it needs to be an 8-bit seque
 I need to finalize the B-Tree logic. I will probably store the Node data within std::vectors to keep things consistent. Sometimes I think using Python would make this way easier but... I like writing C++. 
 
 I temporarily moved Node into BTree.h for simplification. I'm not sure if I will keep it this way or not. This will avoid me needing to rely on getters and setters in the testing phase. I accomplished some more reformatting. I am encountering a lot of difficulty implementing the B-Tree.
+
+2025-12-9 20:00
+
+Because I am struggling to implement the B-Tree, I am going to consolidate everything into a single file (driver.cpp) to minimize class inheritance issues. I think for this session, I am going to create a real skeleton for every function from the menu, as well as for all of the B-tree functions.
