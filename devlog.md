@@ -43,3 +43,5 @@ Because I am struggling to implement the B-Tree, I am going to consolidate every
 I changed Node to be a struct instead of a class, and removed all unused functions. I simplified the Node structure by simply giving it all of its parameters plus a constructor, with no extraneous functions. I also changed the data types to uint64_t to maintain consistency throughout the program. I also added all of the functions and helpers to the BTree class.
 
 I put the logic for creating the index file into distinct functions. I converted each number to bigendian and inserted that into a buffer, which is then written to an ofstream. This should provide more consistent file writing throughout my entire project, minimizing errors in the idx files.
+
+I also added some error handling, to validate input and to check if a file exists, and also to check the magic number. I partially implemented the menu within main() (i.e. our program driver), and implemented the header logic.

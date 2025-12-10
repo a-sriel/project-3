@@ -51,9 +51,8 @@ class BTree {
         
         void create_index_file() {
             std::ofstream file(file_path_, std::ios::binary);
-
             if (!file.is_open()) {
-                std::cerr << "Failed to open file for writing." << std::endl;
+                std::cerr << "File write failed. Unable to open file." << std::endl;
                 return;
             }
 
@@ -78,15 +77,67 @@ class BTree {
 
         // load header from index file
         void load_header() {
-            std::ofstream file(file_path_, std::ios::binary);
-
-            if (file.is_open()) {
-
+            std::ifstream file(file_path_, std::ios::binary);
+            if (!file.is_open()) {
+                std::cerr << "File read failed. Unable to open file." << std::endl;
+                return;
             }
+
+            // read header file
+            char header[BLOCK_SIZE];
+            file.read(header, BLOCK_SIZE);
+
+            if (std::string(header, MAGIC_NUMBER.size()) != MAGIC_NUMBER) {
+                std::cerr << "Invalid index file." << std::endl;
+                exit(1);
+            }
+
+            // read block ids
+            uint64_t root_block_id;
+            uint64_t next_block_id;
+            std::memcpy(&root_block_id, header + MAGIC_NUMBER.size(), sizeof(root_block_id));
+            std::memcpy(&next_block_id, header + MAGIC_NUMBER.size() + sizeof(root_block_id), sizeof(next_block_id));
+
+            root_block_id = to_bigendian(root_block_id);
+            next_block_id = to_bigendian(next_block_id);
+
+            next_block_id_ = next_block_id;
+
+            if (root_block_id != 0) {
+                root_node_ = load_node(root_block_id);
+            }
+
+            file.close();
 
         }
 
-        void save_header() {}
+        void save_header() {
+            std::ofstream file(file_path_, std::ios::binary);
+            if (!file.is_open()) {
+                std::cerr << "File write failed. Unable to open file." << std::endl;
+                return;
+            }
+            
+            // write header
+            file.seekp(0);
+
+            std::vector<uint8_t> buffer;
+            buffer.insert(buffer.end(), MAGIC_NUMBER.begin(), MAGIC_NUMBER.end());
+
+            uint64_t root_block_id = root_node_ ? root_node_->block_id : 0;
+            uint64_t next_block_id = next_block_id_;
+
+            uint64_t root_be = to_bigendian(root_block_id);
+            uint64_t next_be = to_bigendian(next_block_id);
+            
+            buffer.insert(buffer.end(), (uint8_t*)&root_be, (uint8_t*)&root_be + sizeof(root_be));
+            buffer.insert(buffer.end(), (uint8_t*)&next_be, (uint8_t*)&next_be + sizeof(next_be));
+
+            // pad block with 0s
+            format_bytes(file, buffer);
+
+            file.close();
+        }
 
         // Bigendian formatting stuff
         int is_bigendian() {
@@ -148,8 +199,46 @@ class BTree {
         int search(uint64_t key) {}
 };
 
-int main(int argc, char **argv) {
-    BTree tree(10);
-    tree.create();
-    return 0;
+// file checking
+bool file_exists(const std::string& name) {
+    std::ifstream f(name.c_str());
+    return f.good();
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: project3 <command> ..." << std::endl;
+        return 1;
+    }
+
+    std::string command = argv[1];
+
+    if (command == "create") {
+        if (argc < 3) {
+            std::cerr << "Usage" << std::endl;
+            return 1;
+        }
+        if (file_exists(argv[2])) {
+            std::cerr << "File exists." << std::endl;
+            return 1;
+        }
+
+        BTree btree(argv[2]);
+        btree.create_index_file();
+    }
+    else if (command == "insert") {
+
+    }
+    else if (command == "search") {
+
+    }
+    else if (command == "load") {
+
+    }
+    else if (command == "print") {
+
+    }
+    else if (command == "extract") {
+        
+    }
 }
