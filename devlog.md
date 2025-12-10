@@ -41,3 +41,5 @@ I temporarily moved Node into BTree.h for simplification. I'm not sure if I will
 Because I am struggling to implement the B-Tree, I am going to consolidate everything into a single file (driver.cpp) to minimize class inheritance issues. I think for this session, I am going to create a real skeleton for every function from the menu, as well as for all of the B-tree functions.
 
 I changed Node to be a struct instead of a class, and removed all unused functions. I simplified the Node structure by simply giving it all of its parameters plus a constructor, with no extraneous functions. I also changed the data types to uint64_t to maintain consistency throughout the program. I also added all of the functions and helpers to the BTree class.
+
+I put the logic for creating the index file into distinct functions. I converted each number to bigendian and inserted that into a buffer, which is then written to an ofstream. This should provide more consistent file writing throughout my entire project, minimizing errors in the idx files.

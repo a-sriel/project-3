@@ -1,10 +1,18 @@
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+#include <sstream>
+
 #include "Node.h"
 #include "BTree.h"
 #include "Btree.cpp"
 
 const int BLOCK_SIZE = 512;
-const char* MAGIC_NUMBER = "4348PRJ3";
+const std::string MAGIC_NUMBER = "4348PRJ3";
 const int MIN_DEGREE = 10;
 const int MAX_KEYS = (2 * MIN_DEGREE - 1);
 
@@ -41,26 +49,39 @@ class BTree {
     public:
         BTree(const std::string& file_path) : file_path_(file_path), root_node_(nullptr), next_block_id_(1) {}
         
-        void create_index_file() {}
+        void create_index_file() {
+            std::ofstream file(file_path_, std::ios::binary);
+
+            if (!file.is_open()) {
+                std::cerr << "Failed to open file for writing." << std::endl;
+                return;
+            }
+
+            // write header file
+            std::vector<uint8_t> buffer;
+            buffer.insert(buffer.end(), MAGIC_NUMBER.begin(), MAGIC_NUMBER.end());
+
+            uint64_t root_block_id = 0;
+            uint64_t next_block_id = 1;
+
+            uint64_t root_be = to_bigendian(root_block_id);
+            uint64_t next_be = to_bigendian(next_block_id);
+            
+            buffer.insert(buffer.end(), (uint8_t*)&root_be, (uint8_t*)&root_be + sizeof(root_be));
+            buffer.insert(buffer.end(), (uint8_t*)&next_be, (uint8_t*)&next_be + sizeof(next_be));
+
+            // pad block with 0s
+            format_bytes(file, buffer);
+            
+            file.close();
+        }
 
         // load header from index file
         void load_header() {
             std::ofstream file(file_path_, std::ios::binary);
 
             if (file.is_open()) {
-                //std::vector<uint8_t> buffer = {0x34, 0x33, 0x34, 0x38, 0x50, 0x52, 0x4A, 0x33};
 
-                // create header
-                uint8_t root_block_id = to_bigendian(0x00);
-                uint8_t next_block_id = to_bigendian(0x01);
-    
-                std::vector<uint8_t> seq(MAGIC_NUMBER, MAGIC_NUMBER + 8);
-                seq.push_back(root_block_id);
-                seq.push_back(next_block_id);
-
-                format_bytes(file, seq);
-                
-                file.close();
             }
 
         }
