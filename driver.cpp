@@ -3,69 +3,34 @@
 #include "BTree.h"
 #include "Btree.cpp"
 
-const size_t BLOCK_SIZE = 512;
+const int BLOCK_SIZE = 512;
 const char* MAGIC_NUMBER = "4348PRJ3";
-#define MIN_DEGREE 10
-#define MAX_KEYS (2 * MIN_DEGREE - 1)
-        class Node {
-            //private:
-                uint8_t block_id;
-                uint8_t parent_block_id;
-                uint8_t num_keys;
+const int MIN_DEGREE = 10;
+const int MAX_KEYS = (2 * MIN_DEGREE - 1);
 
-                uint8_t order;
+struct Node {
+    uint64_t block_id;
+    uint64_t parent_id;
+    uint64_t num_keys;
 
-                std::vector<uint8_t> keys;
-                std::vector<uint8_t> values;
-                std::vector<uint8_t> child_block_ids;
+    uint64_t keys[MAX_KEYS];
+    uint64_t values[MAX_KEYS];
+    uint64_t child_block_ids[MAX_KEYS + 1];
 
-                std::vector<Node*> children;
+    bool is_leaf;
+    
+    Node() {
+        block_id = 0;
+        parent_id = 0;
+        num_keys = 0;
+        is_leaf = false;
 
-                bool is_leaf;
-                Node* next;
-                
-            //public:
-                Node() {
-                    block_id = 0;
-                    is_leaf = true;
-                }
-
-                Node(uint8_t temp, bool _is_leaf) {
-                    is_leaf = _is_leaf;
-                }
-
-                void insert(uint8_t k);
-                void split_child(uint8_t i, Node *y);
-                void traverse();
-
-                Node * search(uint8_t k);
-
-                Node(bool _is_leaf = false) {
-                    is_leaf = _is_leaf;
-                    next = nullptr;
-                }
-                std::vector<uint8_t> get_child_block_ids() {
-                    return this->child_block_ids;
-                }
-
-                uint8_t get_key_at(int i) {
-                    return this->keys.at(i);
-                }
-
-                void set_key_at(int i) {
-                    
-                }
-
-                bool get_is_leaf() {
-                    return this->is_leaf;
-                }
-
-                bool get_num_keys() {
-                    return this->num_keys;
-                }
-
-                friend class BTree;
-        };
+        // set memory
+        std::memset(keys, 0, sizeof(keys));
+        std::memset(values, 0, sizeof(values));
+        std::memset(child_block_ids, 0, sizeof(child_block_ids));
+    }
+};
 
 class BTree {
     private:
