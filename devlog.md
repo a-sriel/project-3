@@ -61,3 +61,7 @@ I need to finalize the insertion method. I will also incorporate the menu in the
 I finished the insertion logic, and also incorporated the fixed split_child function. I am continuing to update the menu. All of the input error handling has been finished. The menu is also done.
 
 Save node and load node functionality has been added. This was a relatively simple addition since they are basically the same function with a few tweaks. The buffers are properly formatted to support the 8-bit wide number format in the hex file. To finalize this project, I need to finish the print and extract functions, and then do another quick pass of everything before I submit.
+
+2025-12-10 16:48
+
+For the final stretch of this project, the print, extract, and search functions need to be implemented. I should be able to recycle parts of the B-Tree logic used in the other functions to finish these.
