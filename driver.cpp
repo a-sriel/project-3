@@ -399,7 +399,13 @@ int main(int argc, char *argv[]) {
         if (!file_exists(argv[2])) {
             std::cerr << "File does not exist." << std::endl;
             return 1;
-        }        
+        } 
+        
+        BTree btree(argv[2]);
+        btree.load_header();
+        if (btree.search(std::stoull(argv[3])) == -1) {
+            std::cout << "Key not found." << std::endl;
+        }
     }
     else if (command == "load") {
         if (argc < 4) {
@@ -409,6 +415,19 @@ int main(int argc, char *argv[]) {
         if (!file_exists(argv[2])) {
             std::cerr << "File does not exist." << std::endl;
             return 1;
+        }
+
+        BTree btree(argv[2]);
+        btree.load_header();
+
+        std::ifstream csv(argv[3]);
+        std::string line;
+        while(std::getline(csv, line)) {
+            std::stringstream ss(line);
+            std::string k, v;
+            std::getline(ss, k, ',');
+            std::getline(ss, v);
+            btree.insert(std::stoull(k), std::stoull(v));
         }
     }
     else if (command == "print") {
@@ -420,6 +439,10 @@ int main(int argc, char *argv[]) {
             std::cerr << "File does not exist." << std::endl;
             return 1;
         }
+
+        BTree btree(argv[2]);
+        btree.load_header();
+        btree.print();
     }
     else if (command == "extract") {
         if (argc < 4) {
@@ -430,5 +453,9 @@ int main(int argc, char *argv[]) {
             std::cerr << "File does not exist." << std::endl;
             return 1;
         }
+
+        BTree btree(argv[2]);
+        btree.load_header();
+        btree.extract(argv[3]);
     }
 }

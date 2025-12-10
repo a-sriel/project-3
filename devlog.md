@@ -58,4 +58,4 @@ Since dumping everything into a single file, and partially starting over the B-T
 
 I need to finalize the insertion method. I will also incorporate the menu in the program driver to support this insertion. The insertion function creates a header if the root doesn't exist and saves it to the file. Otherwise, it checks for duplicate keys and alters the subroots and splits children until the B-Tree order is maintained.
 
-I finished the insertion logic, and also incorporated the fixed split_child function. I am continuing to update the menu. All of the input error handling has been finished.
+I finished the insertion logic, and also incorporated the fixed split_child function. I am continuing to update the menu. All of the input error handling has been finished. The menu is also done.
