@@ -364,7 +364,7 @@ int main(int argc, char *argv[]) {
 
     if (command == "create") {
         if (argc < 3) {
-            std::cerr << "Usage" << std::endl;
+            std::cerr << "Usage: project3 create <file>.idx" << std::endl;
             return 1;
         }
         if (file_exists(argv[2])) {
@@ -376,7 +376,10 @@ int main(int argc, char *argv[]) {
         btree.create_index_file();
     }
     else if (command == "insert") {
-        if (argc < 5) return 1;
+        if (argc < 5) {
+            std::cerr << "Usage: project3 insert <file>.idx <key> <value>" << std::endl;
+            return 1;
+        }
         if (!file_exists(argv[2])) {
             std::cerr << "File does not exist." << std::endl;
             return 1;
@@ -388,15 +391,44 @@ int main(int argc, char *argv[]) {
 
     }
     else if (command == "search") {
+        if (argc < 4) {
+            std::cerr << "Usage: project3 search <file>.idx <key>" << std::endl;
+            return 1;
+        }
 
+        if (!file_exists(argv[2])) {
+            std::cerr << "File does not exist." << std::endl;
+            return 1;
+        }        
     }
     else if (command == "load") {
-
+        if (argc < 4) {
+            std::cerr << "Usage: project3 load <file>.idx <input>.csv" << std::endl;
+            return 1;
+        }
+        if (!file_exists(argv[2])) {
+            std::cerr << "File does not exist." << std::endl;
+            return 1;
+        }
     }
     else if (command == "print") {
-
+        if (argc < 3) {
+            std::cerr << "Usage: project3 print <file>.idx" << std::endl;
+            return 1;
+        }
+        if (!file_exists(argv[2])) {
+            std::cerr << "File does not exist." << std::endl;
+            return 1;
+        }
     }
     else if (command == "extract") {
-
+        if (argc < 4) {
+            std::cerr << "Usage: project3 extract <file>.idx <output>.csv" << std::endl;
+            return 1;
+        }
+        if (!file_exists(argv[2])) {
+            std::cerr << "File does not exist." << std::endl;
+            return 1;
+        }
     }
 }
