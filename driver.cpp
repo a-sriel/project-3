@@ -34,42 +34,40 @@ struct Node {
 
 class BTree {
     private:
-        std::string filename;
+        std::string file_path_;
+        Node* root_node_;
+        int next_block_id_;
 
-
-        
-     
     public:
+        BTree(const std::string& file_path) : file_path_(file_path), root_node_(nullptr), next_block_id_(1) {}
+        
+        void create_index_file() {}
 
+        // load header from index file
+        void load_header() {
+            std::ofstream file(file_path_, std::ios::binary);
 
-        Node* root;
+            if (file.is_open()) {
+                //std::vector<uint8_t> buffer = {0x34, 0x33, 0x34, 0x38, 0x50, 0x52, 0x4A, 0x33};
 
-        size_t degree = MIN_DEGREE;
+                // create header
+                uint8_t root_block_id = to_bigendian(0x00);
+                uint8_t next_block_id = to_bigendian(0x01);
+    
+                std::vector<uint8_t> seq(MAGIC_NUMBER, MAGIC_NUMBER + 8);
+                seq.push_back(root_block_id);
+                seq.push_back(next_block_id);
 
-        BTree(size_t temp) {
-            root = nullptr;
-            degree = temp;
-        }
-
-        void traverse() {
-            if (root != nullptr) {
-                root->traverse();
+                format_bytes(file, seq);
+                
+                file.close();
             }
+
         }
 
-        Node *search(uint8_t k) {
-            return (root == nullptr) ? nullptr : root->search(k);
-        }
+        void save_header() {}
 
-        void insert(uint8_t k);
-
-        void merge(Node* node, size_t idx);
-
-        BTree(size_t _degree) {
-            root = nullptr;
-            degree = _degree;
-        }
-
+        // Bigendian formatting stuff
         int is_bigendian() {
             int x = 1;
             return ((uint8_t *)&x)[0] != 1;
@@ -103,34 +101,30 @@ class BTree {
 
         }
 
-        void create() {
-            std::ofstream file("test.idx", std::ios::binary);
+        // *************
 
-            if (file.is_open()) {
-                //std::vector<uint8_t> buffer = {0x34, 0x33, 0x34, 0x38, 0x50, 0x52, 0x4A, 0x33};
+        void print_helper(uint64_t block_id) {}
 
-                // create header
-                uint8_t root_block_id = to_bigendian(0x00);
-                uint8_t next_block_id = to_bigendian(0x01);
-    
-                std::vector<uint8_t> seq(MAGIC_NUMBER, MAGIC_NUMBER + 8);
-                seq.push_back(root_block_id);
-                seq.push_back(next_block_id);
+        void print() {}
 
-                format_bytes(file, seq);
-                
-                file.close();
-            }
+        void extract_helper(uint64_t block_id, std::ofstream& out) {}
 
+        void extract(const std::string& filename) {}
+
+        Node* load_node(uint64_t block_id) {}
+
+        // save node to idx file
+        void save_node(Node* node) {}
+
+        void insert(uint64_t key, uint64_t value) {}
+
+        void insert_non_full(Node* x, uint64_t key, uint64_t value) {}
+
+        void split_child(Node* x, Node* y, int i) {
+            Node* z = new Node(); 
         }
 
-        /*
-        void split_child(Node x, int i) {
-            std::vector<uint8_t> y = x.get_child_block_ids();
-            Node z = Node(y->is_leaf);
-        }
-        */
-
+        int search(uint64_t key) {}
 };
 
 int main(int argc, char **argv) {
