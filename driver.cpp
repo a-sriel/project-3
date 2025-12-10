@@ -188,11 +188,60 @@ class BTree {
         // save node to idx file
         void save_node(Node* node) {}
 
+        void insert_non_full(Node* x, uint64_t key, uint64_t value) {
+            int i = x->num_keys - 1;
+            
+            if (x->is_leaf) {
+                while (i >= 0 && key < x->keys[i]) {
+                    x->keys[i + 1] = x->keys[i];
+                    x->values[i + 1] = x->values[i];
+                    i--;
+                }
+
+                if (i >= 0 && x->keys[i] == key) {
+                    std::cout << "Key already exists." << std::endl;
+                    return;
+                }
+
+                // update next keys and values
+                x->keys[i+1] = key;
+                x->values[i+1] = value;
+                x->num_keys++;
+                
+                save_node(x);
+            }
+            else {
+                while (i >= 0 && key < x->keys[i]) {
+                    i--;
+                }
+
+                i++;
+
+                if (i > 0 && x->keys[i-1] == key) {
+                    std::cout << "Key already exists." << std::endl;
+                    return;
+                }
+
+                Node* child = load_node(x->child_block_ids[i]);
+                if (child->num_keys == MAX_KEYS) {
+                    split_child(x, i, child);
+                    if (key > x->keys[i]) {
+                        i++;
+                        delete child;
+                        child = load_node(x->child_block_ids[i]);
+                    } else {
+                        delete child;
+                        child = load_node(x->child_block_ids[i]);
+                    }
+                }
+                insert_non_full(child, key, value);
+                delete child;
+            }
+        }
+
         void insert(uint64_t key, uint64_t value) {}
 
-        void insert_non_full(Node* x, uint64_t key, uint64_t value) {}
-
-        void split_child(Node* x, Node* y, int i) {
+        void split_child(Node* x, int i, Node* y) {
             Node* z = new Node(); 
         }
 
@@ -239,6 +288,6 @@ int main(int argc, char *argv[]) {
 
     }
     else if (command == "extract") {
-        
+
     }
 }

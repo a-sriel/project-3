@@ -49,3 +49,7 @@ I also added some error handling, to validate input and to check if a file exist
 2025-12-10 9:13
 
 For this session, I need to implement the insertion and shift logic for the B-Tree. Once the nodes are inserted properly, I can also work on printing them / extracting them from a file. Now that I have shifted to arrays instead of vectors, making the adjustments within the tree is significantly easier.
+
+I implemented the insert_non_full function, which will serve as a helper for insert(). It traverses the tree and inserts nodes where needed, and loads nodes as well.
+
+Since dumping everything into a single file, and partially starting over the B-Tree, I feel like I have a greater grasp of this project.
