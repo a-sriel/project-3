@@ -287,6 +287,62 @@ class BTree {
 
         void split_child(Node* x, int i, Node* y) {
             Node* z = new Node(); 
+            z->block_id = next_block_id_++;
+            z->is_leaf = y->is_leaf;
+            z->parent_id = x->block_id;
+            z->num_keys = MIN_DEGREE - 1;
+
+            for (int j = 0; j < MIN_DEGREE - 1; j++) {
+                z->keys[j] = y->keys[j + MIN_DEGREE];
+                z->values[j] = y->values[j + MIN_DEGREE];
+                y->keys[j + MIN_DEGREE] = 0;
+                y->values[j + MIN_DEGREE] = 0;
+            }
+
+            if (!y->is_leaf) {
+                for (int j = 0; j < MIN_DEGREE; j++) {
+                    z->child_block_ids[j] = y->child_block_ids[j + MIN_DEGREE];
+                    y->child_block_ids[j + MIN_DEGREE] = 0;
+                }
+            }
+
+            y->num_keys = MIN_DEGREE - 1;
+
+            for (int j = x->num_keys; j >= i + 1; j--) {
+                x->child_block_ids[j + 1] = x->child_block_ids[j];
+            }
+
+            x->child_block_ids[i + 1] = z->block_id;
+
+            for (int j = x->num_keys-1; j >= i; j--) {
+                x->keys[j+1] = x->keys[j];
+                x->values[j+1] = x->values[j];
+            }
+
+            x->keys[i] = y->keys[MIN_DEGREE-1];
+            x->values[i] = y->values[MIN_DEGREE-1];
+            y->keys[MIN_DEGREE-1] = 0;
+            y->values[MIN_DEGREE - 1] = 0;
+            x->num_keys++;
+
+            save_node(y);
+            save_node(z);
+            save_node(x);
+            save_header();
+
+            // check parents for z's children, update as needed
+            if (!z->is_leaf) {
+                for (int j = 0; j <= z->num_keys; j++) {
+                    if (z->child_block_ids[j] != 0) {
+                        Node* child= load_node(z->child_block_ids[j]);
+                        child->parent_id = z->block_id;
+                        save_node(child);
+                        delete child;
+                    }
+                }
+            }
+
+            delete z;
         }
 
         int search(uint64_t key) {}
@@ -320,6 +376,15 @@ int main(int argc, char *argv[]) {
         btree.create_index_file();
     }
     else if (command == "insert") {
+        if (argc < 5) return 1;
+        if (!file_exists(argv[2])) {
+            std::cerr << "File does not exist." << std::endl;
+            return 1;
+        }
+
+        BTree btree(argv[2]);
+        btree.load_header();
+        btree.insert(std::stoull(argv[3]), std::stoull(argv[4]));
 
     }
     else if (command == "search") {
