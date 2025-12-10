@@ -239,7 +239,51 @@ class BTree {
             }
         }
 
-        void insert(uint64_t key, uint64_t value) {}
+        void insert(uint64_t key, uint64_t value) {
+            if (!root_node_) {
+                root_node_ = new Node();
+
+                root_node_->block_id = next_block_id_;
+                root_node_->is_leaf = true;
+                root_node_->num_keys = 1;
+                root_node_->keys[0] = key;
+                root_node_->values[0] = value;
+                next_block_id_++;
+                
+                save_node(root_node_);
+                save_header();
+                return;
+            }
+
+            // duplicate keys check
+            for (int i=0; i < root_node_->num_keys; ++i) {
+                if (root_node_->keys[i] == key) {
+                    std::cout << "Key already exists." << std::endl;
+                    return;
+                }
+            }
+
+            if (root_node_->num_keys == MAX_KEYS) {
+                Node* new_root = new Node();
+                new_root->block_id = next_block_id_++;
+                new_root->is_leaf = false;
+                new_root->num_keys = 0;
+                new_root->child_block_ids[0] = root_node_->block_id;
+
+                // change parent of old root
+                root_node_->parent_id = new_root->block_id;
+                save_node(root_node_);
+
+                Node* old_root = root_node_;
+                root_node_ = new_root;
+                save_header();  // update rood id
+
+                split_child(new_root, 0, old_root);
+                insert_non_full(new_root, key, value);
+            } else {
+                insert_non_full(root_node_, key, value);
+            }
+        }
 
         void split_child(Node* x, int i, Node* y) {
             Node* z = new Node(); 

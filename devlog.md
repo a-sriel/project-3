@@ -53,3 +53,7 @@ For this session, I need to implement the insertion and shift logic for the B-Tr
 I implemented the insert_non_full function, which will serve as a helper for insert(). It traverses the tree and inserts nodes where needed, and loads nodes as well.
 
 Since dumping everything into a single file, and partially starting over the B-Tree, I feel like I have a greater grasp of this project.
+
+2025-12-10 12:57
+
+I need to finalize the insertion method. I will also incorporate the menu in the program driver to support this insertion. The insertion function creates a header if the root doesn't exist and saves it to the file. Otherwise, it checks for duplicate keys and alters the subroots and splits children until the B-Tree order is maintained.
