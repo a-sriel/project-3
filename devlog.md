@@ -65,3 +65,5 @@ Save node and load node functionality has been added. This was a relatively simp
 2025-12-10 16:48
 
 For the final stretch of this project, the print, extract, and search functions need to be implemented. I should be able to recycle parts of the B-Tree logic used in the other functions to finish these.
+
+I was able to finish all of these methods. I have also added a readme. Overall, this was a difficult undertaking. Although the file handling and menu system was easy to implement, using a buffer to pass bigendian numbers, keeping that consistent throughout the project, was challenging. The hardest overall part was getting the B-tree logic to work. It was difficult to evaluate my work, because reading the hex file was difficult. I have also cleaned up the project and removed unneeded files.

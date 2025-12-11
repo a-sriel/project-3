@@ -7,10 +7,6 @@
 #include <algorithm>
 #include <sstream>
 
-#include "Node.h"
-#include "BTree.h"
-#include "Btree.cpp"
-
 const int BLOCK_SIZE = 512;
 const std::string MAGIC_NUMBER = "4348PRJ3";
 const int MIN_DEGREE = 10;
@@ -112,7 +108,7 @@ class BTree {
         }
 
         void save_header() {
-            std::ofstream file(file_path_, std::ios::binary);
+            std::ofstream file(file_path_, std::ios::binary | std::ios::in | std::ios::out);
             if (!file.is_open()) {
                 std::cerr << "File write failed. Unable to open file." << std::endl;
                 return;
@@ -155,10 +151,10 @@ class BTree {
             return *((uint64_t *)dest);
         }
 
-        uint8_t to_bigendian(uint8_t x) {
+        uint64_t to_bigendian(uint64_t x) {
             if (is_bigendian()) return x;
 
-            return (uint8_t)(reverse_bytes((uint64_t)x) >> 32);
+            return (reverse_bytes(x));
         }
 
         void format_bytes(std::ofstream& file, const std::vector<uint8_t>& header_bytes) {
@@ -175,13 +171,47 @@ class BTree {
 
         // *************
 
-        void print_helper(uint64_t block_id) {}
+        void print_helper(uint64_t block_id) {
+            Node* node = load_node(block_id);
+            for (int i = 0;i < node->num_keys; i++) {
+                if (!node->is_leaf) {
+                    print_helper(node->child_block_ids[i]);
+                }
+                std::cout << node->keys[i] << " : " << node->values[i] << std::endl;
+            }
+            if (!node->is_leaf) {
+                print_helper(node->child_block_ids[node->num_keys]);
+            }
+            
+            delete node;
+        }
 
-        void print() {}
+        void print() {
+            if (root_node_) print_helper(root_node_->block_id);
+        }
 
-        void extract_helper(uint64_t block_id, std::ofstream& out) {}
+        void extract_helper(uint64_t block_id, std::ofstream& out) {
+            Node* node = load_node(block_id);
 
-        void extract(const std::string& filename) {}
+            for (int i = 0; i < node->num_keys; i++) {
+                if (!node->is_leaf) {
+                    extract_helper(node->child_block_ids[i], out);
+                }
+                out << node->keys[i] << "," << node->values[i] << "\n";
+            }
+
+            if (!node->is_leaf) {
+                extract_helper(node->child_block_ids[node->num_keys], out);
+            }
+
+            delete node;
+        }
+
+        void extract(const std::string& filename) {
+            std::ofstream out(filename);
+            if (root_node_) extract_helper(root_node_->block_id, out);
+            out.close();
+        }
 
         Node* load_node(uint64_t block_id) {
             std::ifstream file(file_path_, std::ios::binary);
@@ -377,6 +407,8 @@ class BTree {
 
                 split_child(new_root, 0, old_root);
                 insert_non_full(new_root, key, value);
+
+                delete old_root;
             } else {
                 insert_non_full(root_node_, key, value);
             }
@@ -442,7 +474,37 @@ class BTree {
             delete z;
         }
 
-        int search(uint64_t key) {}
+        int search(uint64_t key) {
+            if (!root_node_) {
+                return -1;
+            }
+
+            Node* current_node = root_node_;
+
+            while(current_node) {
+                int i = 0;
+                while (i < current_node->num_keys && key > current_node->keys[i]) {
+                    i++;
+                }
+
+                if (i < current_node->num_keys && key == current_node->keys[i]) {
+                    std::cout << current_node->keys[i] << " : " << current_node->values[i] << std::endl;
+                    return 0;
+                }
+
+                // key not yet found, proceed to next node
+                if (!current_node->is_leaf) {
+                    uint64_t child_id = current_node->child_block_ids[i];
+                    if (current_node != root_node_) delete current_node;
+                    current_node = load_node(child_id);
+                } else {
+                    if (current_node != root_node_) delete current_node;
+                    return -1;
+                }
+            }
+
+            return -1;
+        }
 };
 
 // file checking
@@ -509,10 +571,7 @@ int main(int argc, char *argv[]) {
             std::cerr << "Usage: project3 load <file>.idx <input>.csv" << std::endl;
             return 1;
         }
-        if (!file_exists(argv[2])) {
-            std::cerr << "File does not exist." << std::endl;
-            return 1;
-        }
+        if (!file_exists(argv[2])) return 1;
 
         BTree btree(argv[2]);
         btree.load_header();
@@ -532,10 +591,7 @@ int main(int argc, char *argv[]) {
             std::cerr << "Usage: project3 print <file>.idx" << std::endl;
             return 1;
         }
-        if (!file_exists(argv[2])) {
-            std::cerr << "File does not exist." << std::endl;
-            return 1;
-        }
+        if (!file_exists(argv[2])) return 1;
 
         BTree btree(argv[2]);
         btree.load_header();
@@ -546,11 +602,7 @@ int main(int argc, char *argv[]) {
             std::cerr << "Usage: project3 extract <file>.idx <output>.csv" << std::endl;
             return 1;
         }
-        if (!file_exists(argv[2])) {
-            std::cerr << "File does not exist." << std::endl;
-            return 1;
-        }
-
+        if (file_exists(argv[3])) return 1;
         BTree btree(argv[2]);
         btree.load_header();
         btree.extract(argv[3]);
